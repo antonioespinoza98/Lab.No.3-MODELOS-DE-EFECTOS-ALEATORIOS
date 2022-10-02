@@ -22,7 +22,12 @@ Se toman seis lotes de producto intermedio (ácido H) y de cada uno se hacen cin
 
 \subsection*{Ejercicios}
 
-1. Abra el archivo `colorantes.Rdata`. 
+1. Abra el archivo `colorantes.Rdata`.
+
+```{r}
+load('colorantes.Rdata')
+```
+
 
 \begin{center}
 \noindent\hrule
@@ -30,7 +35,19 @@ Se toman seis lotes de producto intermedio (ácido H) y de cada uno se hacen cin
 
 2. Haga un gráfico para ver el comportamiento de la respuesta de lote a lote. Haga un análisis descriptivo.  En la librería `ggplot2` puede usar la función `qplot` de la siguiente forma: `ggplot(base,aes(X,Y)) ´+ geom_boxplot()`.
 
+```{r}
+head(base)
+
+library(ggplot2)
+
+ggplot(base, aes(lote, prod)) + geom_boxplot()
+```
+
+
 + Discuta cómo se observa la variabilidad intra-sujeto y la variabilidad inter-sujeto.
+
+  - Podemos observar que la variabilidad inter-sujeto es bastante distinta para cada lote, porque cada caja es bastante distinta. Lo que indica que los gramos de colorante son bastante distintos para cada lote, o sea, hay mucha variabilidad. 
+  - Mientras que la variable intra-sujeto también parece indicar que hay mucha variabiliadad entre unidades dentro de algunos lotes. Esto no deja claro entonces si la variabilidad total está determinada por la variabilidad intra-sujeto o inter-sujeto
 
 \begin{center}
 \noindent\hrule
@@ -38,15 +55,43 @@ Se toman seis lotes de producto intermedio (ácido H) y de cada uno se hacen cin
 
 3. Ajuste el modelo mixto con la función `lmer` de la librería `lme4`.  El modelo tiene en la parte de efectos fijos solo el intercepto (ponga un uno pero no es indispensable) y en la parte de efectos aleatorios el lote `(1|lote)` – en esta parte el 1 representa el promedio: `mod1=lmer(prod~1+(1|lote))` es equivalente a `mod1=lmer(prod~(1|lote))`.
 
+```{r}
+library(lme4)
+
+mod <- lmer(prod ~ (1|lote), data = base)
+```
+
+
 + Obtenga del `summary` del `mod1` las estimaciones de las variancias correspondientes a este modelo.
 
+```{r}
+summary(mod)
+```
+
 + Asegúrese que puede obtener manualmente esas estimaciones a partir del anova de un modelo lineal.
+
+```{r}
+anova(lm(prod ~ lote, data = base))
+```
+
+$$E[CMLote]=\sigma_e^2+n\sigma_L^2$$
+$$E[CMRes]=\sigma_\epsilon^2$$
+
+```{r}
+(11271.5-2451.2)/5
+```
+
 
 \begin{center}
 \noindent\hrule
 \end{center}
 
 4. Obtenga los intervalos de confianza para los parámetros del modelo (por default R usa un nivel de confianza de 0.95):  `confint(profile(mod1),level=0.95)`.  En el resultado se debe interpretar `sigma` como la desviación estándar del error y `sigma01` la desviación estándar de lote.
+
+```{r}
+confint(profile(mod), level = 0.95)
+```
+
 
 \begin{center}
 \noindent\hrule
