@@ -99,6 +99,7 @@ confint(profile(mod), level = 0.95)
 
 5. Haga una simulación con el modelo que ha utilizado en este ejercicio. Para esto use como intercepto $\beta_0=1527$, como desviación estándar de lote a lote $\sigma_\delta=42$ y como desviación estándar del error $\sigma_\epsilon=50$.
 
+
 + Defina el número de réplicas por lote $r=5$.
 
 + Defina el número de lotes $a=6$.
@@ -151,11 +152,33 @@ Se miden los niveles de triglicéridos (mg/dl) en las muestras de suero. Los dat
 
 1. Introduzca los datos. Defina `dia` y `maquina` como factor.
 
+```{r}
+base = data.frame(
+dia = c(rep(1, times = 8),rep(2, times = 8), rep(3, times = 8),rep(4, times = 8) ),
+maquina = c('A','A','B','B','C','C','D','D','A','A','B','B','C','C','D','D','A','A','B','B','C','C','D','D','A','A','B','B','C','C','D','D'),
+nvl = c(142.3,144.0,148.6,146.9,142.9,147.4,133.8,133.2,134.9,146.3,145.2,146.3,125.9,127.6,108.9,107.5,148.6,156.5,148.6,153.1,135.5,138.9,132.1,149.7,152.0,151.4,149.7,152.0,142.9,142.3,141.7,141.2))
+
+base$dia = factor(base$dia); base$maquina = factor(base$maquina)
+```
+
+
 \begin{center}
 \noindent\hrule
 \end{center}
 
-2. Haga gráficos para ver el comportamiento de la respuesta de día a día y de máquina a máquina. Haga un análisis descriptivo. 
+2. Haga gráficos para ver el comportamiento de la respuesta de día a día y de máquina a máquina. Haga un análisis descriptivo.
+
+```{r}
+par(mfrow = c(1,2))
+boxplot(nvl ~ dia, data = base);boxplot(nvl ~ maquina, data = base)
+```
+
++ Para día:
+
+  - Podemos observar que la variabilidad inter-sujeto es bastante diferente. Debido a que los niveles de triglicéridos varía mucho de día a día. Al igual, para la variancia inter-sujeto varía medianamente.
+
++ Para máquina:
+  - Podemos decir que para el caso inter-sujeto, la variabilidad es bastante, lo que significa que la variabilidad cambia mucho entre máquinas. Mientras que la variancia inter-sujeto parece ser más grande para la máquina D. 
 
 \begin{center}
 \noindent\hrule
@@ -163,7 +186,21 @@ Se miden los niveles de triglicéridos (mg/dl) en las muestras de suero. Los dat
 
 3. Ajuste el modelo que tiene en la parte de efectos fijos el intercepto y la máquina, mientras que en la parte de efectos aleatorios incluye el día `(1|dia)` y la interacción `(1|dia:maq)`. Recuerde que siempre que al menos uno de los factores tenga efectos aleatorios, la interacción se tiene también efectos aleatorios.
 
-+ Obtenga las estimaciones de las variancias correspondientes a este modelo tanto en R como manualmente. 
+```{r}
+mod = lmer(nvl ~ 1 +(1|dia) + (1|dia:maquina), data = base)
+```
+
+
++ Obtenga las estimaciones de las variancias correspondientes a este modelo tanto en R como manualmente.
+
+```{r}
+summary(mod)
+
+# Forma manual
+
+anova(lm(nvl + dia*maquina))
+```
+
 
 + Obtenga e interprete los intervalos de 95% de confianza para las desviaciones estándar. La estimaciones van en el orden en que aparecen en el summary, es decir, desviación estándar de interacción (`sig01`),  desviación estándar de días (`sig02`) y desviación estándar de error (`sigma`).
 
