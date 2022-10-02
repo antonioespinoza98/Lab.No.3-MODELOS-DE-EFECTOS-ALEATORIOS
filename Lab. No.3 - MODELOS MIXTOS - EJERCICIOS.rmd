@@ -1,0 +1,182 @@
+---
+title: "Laboratorio No.3"
+output:
+  pdf_document: default
+  html_document:
+    highlight: tango
+    theme: cerulean
+subtitle: MODELOS DE EFECTOS ALEATORIOS
+editor_options:
+  chunk_output_type: console
+---  
+
+\subsection{Colorantes}
+
+En una investigación sobre la elaboración de un colorante se sospecha que la variación del producto final puede estar siendo determinada por variaciones en la calidad de un producto intermedio (ácido H). Se quiere encontrar cuánta de la variación entre lote y lote  del ácido H contribuye a la variación en la producción del colorante hecho con este producto.  Se analiza la variabilidad total y se separa la variabilidad que introducen los lotes que son materia prima, de tal forma que la variabilidad restante es atribuida al proceso productivo. Por lo tanto, si la variabilidad total está fuertemente determinada por la variabilidad de los lotes, el productor de colorantes debe llamar la atención al proveedor del ácido H para lograr que su producto sea más estable.
+
+Se toman seis lotes de producto intermedio (ácido H) y de cada uno se hacen cinco preparaciones de colorante en el laboratorio.  Se determina la producción de cada preparación mediante gramos de color estándar.
+
+\begin{center}
+\noindent\hrule
+\end{center}
+
+\subsection*{Ejercicios}
+
+1. Abra el archivo `colorantes.Rdata`. 
+
+\begin{center}
+\noindent\hrule
+\end{center}
+
+2. Haga un gráfico para ver el comportamiento de la respuesta de lote a lote. Haga un análisis descriptivo.  En la librería `ggplot2` puede usar la función `qplot` de la siguiente forma: `ggplot(base,aes(X,Y)) ´+ geom_boxplot()`.
+
++ Discuta cómo se observa la variabilidad intra-sujeto y la variabilidad inter-sujeto.
+
+\begin{center}
+\noindent\hrule
+\end{center}
+
+3. Ajuste el modelo mixto con la función `lmer` de la librería `lme4`.  El modelo tiene en la parte de efectos fijos solo el intercepto (ponga un uno pero no es indispensable) y en la parte de efectos aleatorios el lote `(1|lote)` – en esta parte el 1 representa el promedio: `mod1=lmer(prod~1+(1|lote))` es equivalente a `mod1=lmer(prod~(1|lote))`.
+
++ Obtenga del `summary` del `mod1` las estimaciones de las variancias correspondientes a este modelo.
+
++ Asegúrese que puede obtener manualmente esas estimaciones a partir del anova de un modelo lineal.
+
+\begin{center}
+\noindent\hrule
+\end{center}
+
+4. Obtenga los intervalos de confianza para los parámetros del modelo (por default R usa un nivel de confianza de 0.95):  `confint(profile(mod1),level=0.95)`.  En el resultado se debe interpretar `sigma` como la desviación estándar del error y `sigma01` la desviación estándar de lote.
+
+\begin{center}
+\noindent\hrule
+\end{center}
+
+5. Haga una simulación con el modelo que ha utilizado en este ejercicio. Para esto use como intercepto $\beta_0=1527$, como desviación estándar de lote a lote $\sigma_\delta=42$ y como desviación estándar del error $\sigma_\epsilon=50$.
+
++ Defina el número de réplicas por lote $r=5$.
+
++ Defina el número de lotes $a=6$.
+
++ Extraiga $a$ efectos de lote $\delta_i$ de una distribución normal con media 0 y desviación estándar 42.
+
++ Obtenga la media de cada lote con $\mu+\delta_i$, donde $\mu=\beta_0$.
+
++ Cree un vector de medias que es la repetición de las medias por lote $r$ veces, dando un total de $n=r*a$ datos.
+
++ Obtenga la respuesta de una distribución normal con este vector de medias y la desviación estándar del error.
+
++ Haga un vector que represente la pertenencia a cada lote, es decir repetir los números de 1 hasta $a$, $r$ veces.
+
++ Haga este proceso un número grande de iteraciones, y cada vez extraiga el CMRes y el CMLote.  Guarde cada uno de estos valores en un vector.
+
++ Demuestre que $E(CMRes)=\sigma^2_\epsilon$ y que $E(CMLote)=\sigma^2_\epsilon+r\sigma^2_\delta$.
+
+
+\newpage
+
+\subsection{Espectofotómetro}
+
+Se está desarrollando un nuevo modelo de espectrofotómetro para uso en laboratorios clínicos con el objetivo de cuantificar sustancias y microorganismos. Se quiere evaluar  el funcionamiento de estos instrumentos sabiendo que un componente crítico del desempeño es la consistencia de las mediciones de un día a otro, y de una máquina a otra. Se quiere saber si la variabilidad de las mediciones entre las máquinas operadas durante varios días está dentro de los estándares aceptables.
+
+Hay dos escenarios, en el primero se toman 4 máquinas asumiendo que solo existen esas 4 máquinas, mientras que en el segundo se seleccionan aleatoriamente 4 máquinas etiquetadas como A, B, C y D de un conjunto mucho mayor de máquinas. Cada día se preparan 8 replicaciones de muestras de suero en sangre con el mismo lote de reactivos para todo el experimento. Dos muestras de suero se asignan aleatoriamente a cada una de las cuatro máquinas en cada uno de los 4 días resultando en dos repeticiones de cada combinación día-máquina. 
+
+Se miden los niveles de triglicéridos (mg/dl) en las muestras de suero. Los datos se muestran  a continuación:
+
+\begin{table}[h!]
+  \begin{center}
+    \begin{tabular}{c|c|c|c|c|c|c|c|c} 
+      \hline
+\textbf{Día} & \textbf{A} & \textbf{A} & \textbf{B} & \textbf{B} & \textbf{C} &     \textbf{C} & \textbf{D} & \textbf{D}\\
+\hline
+1   & 142.3 & 144.0 & 148.6 & 146.9 & 142.9 & 147.4 & 133.8 & 133.2\\
+2   & 134.9 & 146.3 & 145.2 & 146.3 & 125.9 & 127.6 & 108.9 & 107.5\\
+3   & 148.6 & 156.5 & 148.6 & 153.1 & 135.5 & 138.9 & 132.1 & 149.7\\
+4   & 152.0 & 151.4 & 149.7 & 152.0 & 142.9 & 142.3 & 141.7 & 141.2\\
+\hline
+    \end{tabular}
+  \end{center}
+\end{table}
+
+\begin{center}
+\noindent\hrule
+\end{center}
+
+\subsection*{Ejercicios}
+
+1. Introduzca los datos. Defina `dia` y `maquina` como factor.
+
+\begin{center}
+\noindent\hrule
+\end{center}
+
+2. Haga gráficos para ver el comportamiento de la respuesta de día a día y de máquina a máquina. Haga un análisis descriptivo. 
+
+\begin{center}
+\noindent\hrule
+\end{center}
+
+3. Ajuste el modelo que tiene en la parte de efectos fijos el intercepto y la máquina, mientras que en la parte de efectos aleatorios incluye el día `(1|dia)` y la interacción `(1|dia:maq)`. Recuerde que siempre que al menos uno de los factores tenga efectos aleatorios, la interacción se tiene también efectos aleatorios.
+
++ Obtenga las estimaciones de las variancias correspondientes a este modelo tanto en R como manualmente. 
+
++ Obtenga e interprete los intervalos de 95% de confianza para las desviaciones estándar. La estimaciones van en el orden en que aparecen en el summary, es decir, desviación estándar de interacción (`sig01`),  desviación estándar de días (`sig02`) y desviación estándar de error (`sigma`).
+
+4. Ajuste un modelo similar donde la máquina tiene efectos aleatorios, pues se tienen muchas máquinas y estas 4 son una muestra.
+
++ Obtenga las estimaciones de las variancias correspondientes a este modelo y compárelas con las obtenidas anteriormente.
+
+\newpage
+
+\subsection{Escarabajos}
+
+En un estudio se quería identificar cuál tipo de recolecta es mejor para registrar la diversidad de sexo en una especie de escarabajos. Se realizaron recolectas de escarabajos nocturnos con dos métodos: 1) usando alumbrado público y 2) utilizando lámparas. Los muestreos se hicieron sistemáticamente (hora y media a partir de la penumbra) durante los meses de abril a junio en cinco parcelas de cultivo en la zona de San Cristóbal de Las Casas, Chiapas. Se registró el sexo de los escarabajos recolectados para determinar si en un tipo de recolecta la proporción de cada sexo era diferente.
+
+\subsection*{Ejercicios}
+
+1. Cargue los datos en el archivo `escarabajos.Rdata`.  Defina `parcela` como factor.
+ 
++  Identifique la variable respuesta y comente sobre la distribución condicional que tiene esta variable.
+
++	Justifique si las parcelas representan un efecto fijo o aleatorio.
+
++ Represente gráficamente los datos y observe si se puede esperar un efecto del método de recolecta.
+
+\begin{center}
+\noindent\hrule
+\end{center}
+
+2. Tome las parcelas como bloques fijos y ajuste el modelo logístico con `glm`.  Ponga atención al modelo que está usando en R (suma nula o tratamiento referencia).
+
++	Interprete la razón de propensiones (OR) resultante. Debe tener claro cuál probabilidad es la que está obteniendo (de machos o hembras). Esto dependerá de la forma en que especificó su modelo.
+
+\begin{center}
+\noindent\hrule
+\end{center}
+
+3.	Realice la prueba `LRT` para determinar si existe un efecto del tipo de recolecta en la proporción de machos (o hembras) capturados.
+
+\begin{center}
+\noindent\hrule
+\end{center}
+
+4.	Lo que se hizo anteriormente no es correcto, ya que no se está considerando la parcela como un elemento aleatorio sino fijo, como si solo existieran esas parcelas. Ahora tome la parcela como un efecto aleatorio y ajuste el modelo usando la función `glmer` de la librería `lme4`. Obtenga el OR y compárelo con el obtenido anteriormente.
+
++ En el gráfico anterior, se puede apreciar uan posible interacción entre parcela y tipo de recolecta.  Usualmente se asume que no existe interacción cuando se tiene un diseño con bloques, porque típicamente esta interacción no se puede verificar al tener solo una observación por tratamiento y bloque.  En este caso sí se puede verificar.  Ajuste un modelo donde incluya la interacción, observe la estimación de la varianza de los efectos de interacción y relaciónelo con el mensaje que da R al ajustar este modelo.
+
++ Realice la prueba adecuada para determinar si se debe considerar esta interacción.
+
++ Vuelva al modelo sin interacción y realice la prueba adecuada para determinar si existe un efecto del tipo de recolecta.
+
++ Construya intervalos de 95% para el OR obtenido con cada modelo (con bloques fijos y con efectos aleatorios). Compárelos.
+
+5. Para terminar es importante escribir el modelo teórico que se está usando.  Como se trata de un modelo con una función de enlace logística, no conviene escribirlo en función de cada observación sino en función de la esperanza.  
+
++ Observe el summary del modelo. Note que solo se ha estimado un componente de varianza ya que en estos modelos no se incluye la varianza del error.
+
++ ¿Se puede obtener a partir de los resultados una estimación de la probabilidad de obtener un macho con un cierto tipo de alumbrado en general en la población?
+
+\begin{center}
+\noindent\hrule
+\end{center}
+
