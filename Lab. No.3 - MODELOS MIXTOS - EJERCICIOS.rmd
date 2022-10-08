@@ -365,19 +365,18 @@ mod = glm(cbind(M,H) ~ tipo + parcela,family = 'binomial', data = base)
 +	Interprete la razón de propensiones (OR) resultante. Debe tener claro cuál probabilidad es la que está obteniendo (de machos o hembras). Esto dependerá de la forma en que especificó su modelo.
 
 ```{r}
-# L (1,1)
-# AP (1,-1)
+# L (1,0)
+# AP (1,1)
 
-# (0,2)
-
+# (0,-1)
 contrasts(base$tipo)
 
 mod$coefficients
 
-exp(2*mod$coefficients[2])
+exp(mod$coefficients[2])
 ```
 
-+ En una parcela específica, la propensión de encontrar un macho cuando se usa lampareo es 74% mayor que cuando se usa alumbrado público. 
++ En una parcela específica, la propensión de encontrar un macho cuando se usa lampareo es 36% mayor que cuando se usa alumbrado público. 
 
 \begin{center}
 \noindent\hrule
@@ -396,9 +395,28 @@ drop1(mod, test = 'LRT')
 
 4.	Lo que se hizo anteriormente no es correcto, ya que no se está considerando la parcela como un elemento aleatorio sino fijo, como si solo existieran esas parcelas. Ahora tome la parcela como un efecto aleatorio y ajuste el modelo usando la función `glmer` de la librería `lme4`. Obtenga el OR y compárelo con el obtenido anteriormente.
 
+```{r}
+mod1 = glmer(cbind(M,H) ~ tipo + (1|parcela), family = 'binomial', data = base)
+
+betas = summary(mod1)$coef
+
+exp(-betas[2,1])
+```
+
+
 + En el gráfico anterior, se puede apreciar uan posible interacción entre parcela y tipo de recolecta.  Usualmente se asume que no existe interacción cuando se tiene un diseño con bloques, porque típicamente esta interacción no se puede verificar al tener solo una observación por tratamiento y bloque.  En este caso sí se puede verificar.  Ajuste un modelo donde incluya la interacción, observe la estimación de la varianza de los efectos de interacción y relaciónelo con el mensaje que da R al ajustar este modelo.
 
+```{r}
+mod2 = glmer(cbind(M,H) ~ tipo + (1|parcela) + (1|parcela:tipo), family = 'binomial', data = base)
+```
+
+
 + Realice la prueba adecuada para determinar si se debe considerar esta interacción.
+
+```{r}
+anova(mod2 ,mod1)
+```
+
 
 + Vuelva al modelo sin interacción y realice la prueba adecuada para determinar si existe un efecto del tipo de recolecta.
 
